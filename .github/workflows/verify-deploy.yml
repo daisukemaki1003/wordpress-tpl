@@ -1,0 +1,84 @@
+name: Verify Deploy Target
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Show target info
+        run: |
+          echo "============================================"
+          echo " デプロイ先の検証"
+          echo "============================================"
+          echo ""
+          echo "接続先情報:"
+          echo "  SSH_HOST:          ${{ secrets.SSH_HOST }}"
+          echo "  SSH_USER:          ${{ secrets.SSH_USER }}"
+          echo "  REMOTE_THEME_PATH: ${{ secrets.REMOTE_THEME_PATH }}"
+          echo ""
+
+      - name: SSH connection test
+        run: |
+          echo "--------------------------------------------"
+          echo "[1/3] SSH 接続テスト"
+          echo "--------------------------------------------"
+          ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=10 \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'OK'"
+          echo "✅ SSH 接続: 成功"
+
+      - name: Verify remote path
+        run: |
+          echo "--------------------------------------------"
+          echo "[2/3] リモートパスの存在確認"
+          echo "--------------------------------------------"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "if [ -d '${{ secrets.REMOTE_THEME_PATH }}' ]; then
+               echo '✅ テーマディレクトリ: 存在します'
+               echo ''
+               echo 'ディレクトリの内容:'
+               ls -la '${{ secrets.REMOTE_THEME_PATH }}'
+             else
+               PARENT=\$(dirname '${{ secrets.REMOTE_THEME_PATH }}')
+               if [ -d \"\$PARENT\" ]; then
+                 echo '⚠️  テーマディレクトリは未作成ですが、親ディレクトリは存在します'
+                 echo ''
+                 echo \"親ディレクトリの内容 (\$PARENT):\"
+                 ls -la \"\$PARENT\"
+               else
+                 echo '❌ パスが見つかりません: ${{ secrets.REMOTE_THEME_PATH }}'
+                 echo '   親ディレクトリも存在しません'
+                 exit 1
+               fi
+             fi"
+
+      - name: Verify WordPress installation
+        run: |
+          echo "--------------------------------------------"
+          echo "[3/3] WordPress インストール確認"
+          echo "--------------------------------------------"
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} \
+            "WP_ROOT=\$(echo '${{ secrets.REMOTE_THEME_PATH }}' | sed 's|/wp-content/themes/.*||')
+             if [ -f \"\$WP_ROOT/wp-config.php\" ]; then
+               echo \"✅ WordPress: \$WP_ROOT/wp-config.php が存在します\"
+             else
+               echo \"⚠️  WordPress の wp-config.php が見つかりません: \$WP_ROOT\"
+               echo '   → REMOTE_THEME_PATH の構成を確認してください'
+             fi"
+
+      - name: Summary
+        run: |
+          echo ""
+          echo "============================================"
+          echo " 検証完了"
+          echo "============================================"
+          echo ""
+          echo "GitHub Secrets の設定値:"
+          echo "  SSH_HOST          = ${{ secrets.SSH_HOST }}"
+          echo "  SSH_USER          = ${{ secrets.SSH_USER }}"
+          echo "  REMOTE_THEME_PATH = ${{ secrets.REMOTE_THEME_PATH }}"
