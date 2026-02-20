@@ -1,0 +1,27 @@
+services:
+  wordpress:
+    image: wordpress:php8.3-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./wordpress/wp-content/themes/my-theme:/var/www/html/wp-content/themes/my-theme
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: ${DB_USER}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
+
+  db:
+    image: mariadb:11
+    volumes:
+      - db_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+volumes:
+  db_data:

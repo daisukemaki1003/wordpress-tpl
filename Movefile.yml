@@ -1,0 +1,33 @@
+global:
+  sql_adapter: wpcli
+
+local:
+  vhost: "http://localhost:8080"
+  wordpress_path: "/html"
+  database:
+    name: "<%= ENV['DB_NAME'] %>"
+    user: "<%= ENV['DB_USER'] %>"
+    password: "<%= ENV['DB_PASSWORD'] %>"
+    host: "db"
+    port: "3306"
+
+production:
+  vhost: "<%= ENV['REMOTE_URL'] %>"
+  wordpress_path: "<%= ENV['REMOTE_WP_PATH'] %>"
+  database:
+    name: "<%= ENV['REMOTE_DB_NAME'] %>"
+    user: "<%= ENV['REMOTE_DB_USER'] %>"
+    password: "<%= ENV['REMOTE_DB_PASSWORD'] %>"
+    host: "<%= ENV['REMOTE_DB_HOST'] %>"
+  ssh:
+    host: "<%= ENV['REMOTE_SSH_HOST'] %>"
+    user: "<%= ENV['REMOTE_SSH_USER'] %>"
+    port: "<%= ENV['REMOTE_SSH_PORT'] %>"
+  forbid:
+    push:
+      db: true
+      uploads: true
+      themes: true
+      plugins: true
+      languages: true
+      mu_plugins: true

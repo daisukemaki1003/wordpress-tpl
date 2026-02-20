@@ -1,0 +1,33 @@
+name: Deploy Theme
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy via rsync
+        run: |
+          rsync -azv --delete \
+            --exclude='.git' \
+            --exclude='node_modules' \
+            --exclude='src' \
+            --exclude='.env' \
+            ./wordpress/wp-content/themes/my-theme/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.REMOTE_THEME_PATH }}/
