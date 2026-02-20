@@ -1,0 +1,15 @@
+@use "./module" as *;
+@use "./config" as *;
+
+html {
+    scroll-behavior: smooth;
+
+    @include sp {
+        font-size: calc(16 / #{$device_sp} * 100vw);
+    }
+}
+
+body {
+    font-family: "Noto Sans JP", Helvetica, Arial, "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", 游ゴシック, "Yu Gothic ", YuGothic, Osaka, メイリオ, Meiryo, "MS Pゴシック", "MS P Gothic", sans-serif;
+    background: #ccc;
+}

@@ -1,0 +1,54 @@
+@use "./config" as *;
+
+//メディアクエリ
+@mixin sp {
+  @media screen and (width < $breakpoint-mobile) {
+    @content;
+  }
+}
+
+@mixin pc {
+  @media screen and ($breakpoint-mobile <=width) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media screen and (width < $breakpoint-tablet) {
+    @content;
+  }
+}
+
+@mixin custom_min($break-point) {
+  @media screen and ($break-point <=width) {
+    @content;
+  }
+}
+
+@mixin custom_max($break-point) {
+  @media screen and (width < $break-point) {
+    @content;
+  }
+}
+
+@mixin custom_max_min($width_min, $width_max) {
+  @media screen and ($width_min <=width < $width_max) {
+    @content;
+  }
+}
+
+@mixin Hover() {
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      @content;
+    }
+  }
+}
+
+@mixin defaultHoverAnime() {
+  transition: $default-hover-anime;
+
+  @include Hover {
+    opacity: .5;
+  }
+}

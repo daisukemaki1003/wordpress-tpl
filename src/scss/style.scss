@@ -1,6 +1,6 @@
-@use "variables" as *;
-
-body {
-  color: $color-text;
-  background-color: $color-background;
-}
+@use './common/reset';
+@use './common/layout';
+@use './common/base';
+@use './component/header';
+@use './component/footer';
+@use './page/index';
