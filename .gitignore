@@ -9,6 +9,15 @@ wordpress/wp-content/uploads/
 wordpress/wp-content/plugins/
 wordpress/wp-content/themes/my-theme/assets/
 
+# Wordmove backups
+*.sql
+*.sql.gz
+
 # OS
 .DS_Store
 Thumbs.db
+
+# claude
+.claude/
+.kiro/
+

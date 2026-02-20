@@ -7,8 +7,8 @@
     "build": "vite build",
     "up": "docker compose up -d",
     "down": "docker compose down",
-    "pull:db": "docker run --rm -v \"$(pwd)/Movefile.yml:/html/Movefile.yml\" -v \"$(pwd)/.env:/html/.env\" -v \"$HOME/.ssh:/root/.ssh:ro\" --network wordpress-tpl_default welaika/wordmove wordmove pull -d",
-    "pull:uploads": "docker run --rm -v \"$(pwd)/Movefile.yml:/html/Movefile.yml\" -v \"$(pwd)/.env:/html/.env\" -v \"$(pwd)/wordpress:/html\" -v \"$HOME/.ssh:/root/.ssh:ro\" --network wordpress-tpl_default welaika/wordmove wordmove pull -u"
+    "pull:db": "docker compose run --rm wordmove wordmove pull -d",
+    "pull:uploads": "docker compose run --rm wordmove wordmove pull -u"
   },
   "devDependencies": {
     "sass": "^1.70.0",

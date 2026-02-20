@@ -23,5 +23,15 @@ services:
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
+  wordmove:
+    image: welaika/wordmove
+    volumes:
+      - ./Movefile.yml:/html/Movefile.yml
+      - ./.env:/html/.env
+      - ./wordpress/wp-content:/html/wp-content
+      - ${SSH_KEY_PATH}:/root/.ssh/id_rsa:ro
+    depends_on:
+      - db
+
 volumes:
   db_data:
