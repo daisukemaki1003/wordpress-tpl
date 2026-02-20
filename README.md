@@ -182,3 +182,7 @@ wordpress-tpl/
 | `REMOTE_SSH_HOST` | SSH 接続先ホスト名 | `example.com` |
 | `REMOTE_SSH_USER` | SSH ユーザー名 | `deploy` |
 | `REMOTE_SSH_PORT` | SSH ポート番号 | `22` |
+
+## トラブルシューティング
+
+- [Wordmove SSH 接続エラー](docs/troubleshooting-ssh-key-format.md) — 鍵フォーマットエラー・ホストキー未登録エラーの対処法

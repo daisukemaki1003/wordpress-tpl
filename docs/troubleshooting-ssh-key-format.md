@@ -1,6 +1,8 @@
-# トラブルシューティング: Wordmove SSH 鍵フォーマットエラー
+# トラブルシューティング: Wordmove SSH 接続エラー
 
-## 1. エラーの概要
+## 1. 鍵フォーマットエラー（NotImplementedError）
+
+### エラーの概要
 
 Docker Compose 経由で Wordmove（`npm run pull:db` / `npm run pull:uploads`）を実行した際、以下のエラーが発生し SSH 接続に失敗する。
 
@@ -11,7 +13,7 @@ net-ssh requires the following gems for ed25519 support:
  * bcrypt_pbkdf (>= 1.0, < 2.0)
 ```
 
-## 2. 技術的な原因
+### 技術的な原因
 
 ### エラーメッセージの誤解
 
@@ -55,7 +57,7 @@ wordmove:
 
 `SSH_KEY_PATH`（`.env` で設定）が指す秘密鍵が OpenSSH 新形式の場合にこのエラーが発生する。
 
-## 3. 解決方法
+### 解決方法
 
 ### 手順: PEM 形式への変換
 
@@ -102,7 +104,45 @@ head -1 ~/.ssh/coreserver/wordmove_rsa
 - 公開鍵（`.pub`）の変更は不要。PEM 形式への変換は秘密鍵のエンコーディングのみを変更し、鍵ペアとしての整合性は維持される。
 - 変換後も SSH 接続先での認証には影響しない（公開鍵は同一のまま）。
 
-## 4. 参考情報
+## 2. ホストキー未登録エラー（Host key verification failed）
+
+### エラーの概要
+
+鍵フォーマットの問題を解決した後、Wordmove の実行（`npm run pull:uploads` 等）で SSH 接続がホストキー検証で失敗する。
+
+### 技術的な原因
+
+ホスト側の `~/.ssh/known_hosts` にリモートサーバーのホストキーが登録されていない、または登録済みの鍵タイプとサーバーが提示する鍵タイプが一致しない場合に発生する。
+
+例えば `known_hosts` に RSA 形式のホストキーのみ登録されている状態で、サーバーが ECDSA 形式のキーを提示した場合、一致するエントリが見つからず接続が拒否される。
+
+Wordmove コンテナは `docker-compose.yml` でホスト側の `~/.ssh/known_hosts` を直接マウントしていないため、コンテナ内の `/root/.ssh/known_hosts` が空の状態で起動する点にも注意が必要。
+
+### 解決方法
+
+`ssh-keyscan` で対象サーバーの全種類のホストキーを取得し、`known_hosts` に追加する。
+
+```bash
+ssh-keyscan -H v2002.coreserver.jp >> ~/.ssh/known_hosts
+```
+
+| オプション | 説明 |
+|-----------|------|
+| `-H` | ホスト名をハッシュ化して記録する（セキュリティ向上） |
+
+`ssh-keyscan` は RSA・ECDSA・Ed25519 など全種類のホストキーをまとめて取得するため、鍵タイプの不一致を防げる。
+
+登録後、Wordmove コンテナからこの `known_hosts` を参照できるようにする必要がある。`docker-compose.yml` の `wordmove` サービスに以下のボリュームマウントを追加する。
+
+```yaml
+wordmove:
+  volumes:
+    - ~/.ssh/known_hosts:/root/.ssh/known_hosts:ro
+```
+
+---
+
+## 参考情報
 
 - [net-ssh: OpenSSH private key support](https://github.com/net-ssh/net-ssh#openssh-private-key-support)
 - [OpenSSH 7.8 リリースノート（鍵形式のデフォルト変更）](https://www.openssh.com/txt/release-7.8)
