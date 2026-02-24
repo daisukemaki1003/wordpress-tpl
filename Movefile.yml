@@ -1,5 +1,5 @@
 global:
-  sql_adapter: wpcli
+  sql_adapter: default
 
 local:
   vhost: "http://localhost:8080"

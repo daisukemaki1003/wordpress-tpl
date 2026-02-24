@@ -7,6 +7,7 @@
     "build": "vite build",
     "up": "docker compose up -d",
     "down": "docker compose down",
+    "pull:theme": "docker compose run --rm wordmove wordmove pull -t",
     "pull:db": "docker compose run --rm wordmove wordmove pull -d",
     "pull:uploads": "docker compose run --rm wordmove wordmove pull -u"
   },
