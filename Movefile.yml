@@ -2,8 +2,8 @@ global:
   sql_adapter: default
 
 local:
-  vhost: "http://localhost:8080"
-  wordpress_path: "/html"
+  vhost: "http://localhost:8888"
+  wordpress_path: "/html/"
   database:
     name: "<%= ENV['DB_NAME'] %>"
     user: "<%= ENV['DB_USER'] %>"

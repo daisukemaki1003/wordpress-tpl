@@ -7,11 +7,19 @@ node_modules/
 # WordPress core (theme only in version control)
 wordpress/wp-content/uploads/
 wordpress/wp-content/plugins/
-wordpress/wp-content/themes/my-theme/assets/
+wordpress/wp-content/languages/
+wordpress/wp-content/plugins/
+wordpress/wp-content/siteguard/
+wordpress/wp-content/upgrade/
+wordpress/wp-content/ai1wm-backups/
+wordpress/wp-content/mu-plugins/
 
 # Wordmove backups
 *.sql
 *.sql.gz
+
+# Vite dev server
+**/dist/hot
 
 # OS
 .DS_Store

@@ -3,13 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite build --watch",
+    "dev": "vite",
     "build": "vite build",
     "up": "docker compose up -d",
     "down": "docker compose down",
     "pull:theme": "docker compose run --rm wordmove wordmove pull -t",
     "pull:db": "docker compose run --rm wordmove wordmove pull -d",
-    "pull:uploads": "docker compose run --rm wordmove wordmove pull -u"
+    "pull:uploads": "docker compose run --rm wordmove wordmove pull -u",
+    "pull:all": "docker compose run --rm wordmove wordmove pull --all"
   },
   "devDependencies": {
     "sass": "^1.70.0",

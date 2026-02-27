@@ -2,15 +2,20 @@ services:
   wordpress:
     image: wordpress:php8.3-apache
     ports:
-      - "8080:80"
+      - "8888:80"
     volumes:
-      - ./wordpress/wp-content/themes/my-theme:/var/www/html/wp-content/themes/my-theme
+      - ./wordpress/wp-content:/var/www/html/wp-content
+    command: >
+      bash -c "chown www-data:www-data /var/www/html/wp-content && apache2-foreground"
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: ${DB_USER}
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD}
       WORDPRESS_DB_NAME: ${DB_NAME}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'http://localhost:8888');
+        define('WP_SITEURL', 'http://localhost:8888');
     depends_on:
       - db
 
