@@ -1,13 +1,13 @@
 # wordpress-tpl
 
-Docker Compose によるローカル WordPress 環境、Vite による SCSS/TypeScript ビルド、Wordmove によるリモート同期、GitHub Actions による自動デプロイを統合した WordPress テーマ開発テンプレート。
+Docker Compose によるローカル WordPress 環境、Vite による SCSS/TypeScript ビルド（HMR 対応）、Wordmove によるリモート同期、GitHub Actions による自動デプロイを統合した WordPress テーマ開発テンプレート。
 
 ## 技術スタック
 
 - **Docker Compose** — WordPress + MariaDB のローカル実行環境
-- **Vite** — SCSS / TypeScript のビルドと watch
+- **Vite** — SCSS / TypeScript のビルドと HMR（Hot Module Replacement）
 - **Wordmove** — リモート環境の DB・uploads を pull 同期
-- **GitHub Actions** — main ブランチへの push で自動デプロイ（rsync）
+- **GitHub Actions** — main ブランチへの PR マージで自動デプロイ（rsync）
 
 ## 前提条件
 
@@ -30,7 +30,7 @@ cd wordpress-tpl
 cp .env.example .env
 ```
 
-`.env` を開き、データベース情報やリモートサーバー情報を環境に合わせて編集する。
+`.env` を開き、`THEME_NAME`・データベース情報・リモートサーバー情報を環境に合わせて編集する。
 
 3. 依存パッケージをインストールする
 
@@ -44,17 +44,17 @@ npm install
 npm run up
 ```
 
-ブラウザで http://localhost:8080 にアクセスし、WordPress の初期設定を行う。
+ブラウザで http://localhost:8888 にアクセスし、WordPress の初期設定を行う。
 
 ## 開発
 
-### Watch モード（開発中）
+### 開発サーバー（HMR 対応）
 
 ```bash
 npm run dev
 ```
 
-`src/scss/` および `src/ts/` 内のファイル変更を検知し、自動的にコンパイルして `wordpress/wp-content/themes/my-theme/assets/` へ出力する。ブラウザをリロードすると変更が反映される。
+Vite 開発サーバーが起動し、`src/scss/` および `src/ts/` 内のファイル変更をブラウザへ自動反映する。WordPress 側は `theme/dist/hot` ファイルを検知して Vite dev server からアセットを読み込む。
 
 ### 本番ビルド
 
@@ -62,7 +62,7 @@ npm run dev
 npm run build
 ```
 
-ミニファイ済みの CSS / JS を生成する。
+ミニファイ済みの CSS / JS を `theme/dist/` へ生成する。
 
 ### 環境の停止
 
@@ -88,34 +88,54 @@ npm run pull:db
 npm run pull:uploads
 ```
 
+### テーマファイルの同期
+
+```bash
+npm run pull:theme
+```
+
+### すべて同期
+
+```bash
+npm run pull:all
+```
+
 ## ディレクトリ構成
 
 ```
 wordpress-tpl/
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # GitHub Actions デプロイワークフロー
+│       ├── deploy.yml              # GitHub Actions デプロイワークフロー
+│       └── verify-deploy.yml       # デプロイ先の検証ワークフロー
+├── docker/
+│   └── php.ini                     # PHP 設定（アップロード上限等）
 ├── src/
 │   ├── scss/
-│   │   ├── style.scss          # SCSS エントリポイント
-│   │   └── _variables.scss     # SCSS 変数
+│   │   ├── style.scss              # SCSS エントリポイント
+│   │   ├── common/                 # リセット・変数・ミックスイン・レイアウト
+│   │   ├── component/              # ヘッダー・フッター等の共通パーツ
+│   │   └── page/                   # ページ固有のスタイル
 │   └── ts/
-│       └── main.ts             # TypeScript エントリポイント
-├── wordpress/
-│   └── wp-content/
-│       └── themes/
-│           └── my-theme/
-│               ├── assets/     # Vite ビルド出力先（git 管理外）
-│               ├── style.css   # WP テーマ識別用ヘッダー
-│               ├── functions.php
-│               └── index.php
-├── docker-compose.yml          # WordPress + MariaDB コンテナ定義
-├── vite.config.ts              # Vite ビルド設定
-├── Movefile.yml                # Wordmove 同期設定
-├── package.json                # npm scripts・依存パッケージ
-├── tsconfig.json               # TypeScript 設定
-├── .env                        # 環境変数（git 管理外）
-├── .env.example                # 環境変数テンプレート
+│       ├── main.ts                 # TypeScript エントリポイント
+│       ├── components/             # 再利用コンポーネント
+│       ├── pages/                  # ページ固有のスクリプト
+│       └── utils/                  # ユーティリティ関数
+├── theme/                          # WordPress テーマ本体
+│   ├── dist/                       # Vite ビルド出力先（git 管理外）
+│   ├── assets/                     # 画像等の静的アセット
+│   ├── style.css                   # WP テーマ識別用ヘッダー
+│   ├── functions.php               # Vite アセット読み込み（dev/prod 自動切替）
+│   ├── header.php                  # 共通ヘッダー
+│   ├── footer.php                  # 共通フッター
+│   └── index.php                   # フォールバックテンプレート
+├── docker-compose.yml              # WordPress + MariaDB コンテナ定義
+├── vite.config.ts                  # Vite ビルド設定
+├── Movefile.yml                    # Wordmove 同期設定
+├── package.json                    # npm scripts・依存パッケージ
+├── tsconfig.json                   # TypeScript 設定
+├── .env                            # 環境変数（git 管理外）
+├── .env.example                    # 環境変数テンプレート
 └── .gitignore
 ```
 
@@ -123,7 +143,9 @@ wordpress-tpl/
 |------|------|
 | `src/scss/` | SCSS ソースファイル。Vite が CSS へコンパイル |
 | `src/ts/` | TypeScript ソースファイル。Vite が JS へコンパイル |
-| `wordpress/wp-content/themes/my-theme/` | WordPress テーマ本体 |
+| `theme/` | WordPress テーマ本体。Docker でテーマディレクトリへマウントされる |
+| `theme/dist/` | Vite ビルド出力先。git 管理外、CI で毎回ビルド |
+| `docker/php.ini` | PHP の upload_max_filesize 等のカスタム設定 |
 | `docker-compose.yml` | WordPress・MariaDB コンテナの定義 |
 | `vite.config.ts` | ビルドのエントリポイント・出力先を定義 |
 | `Movefile.yml` | Wordmove の接続先・同期設定 |
@@ -132,12 +154,12 @@ wordpress-tpl/
 
 ## デプロイ
 
-`main` ブランチへの push をトリガーに、GitHub Actions が自動でデプロイを実行する。
+`main` ブランチへの PR マージをトリガーに、GitHub Actions が自動でデプロイを実行する。
 
 ワークフローの流れ:
 
 1. `npm ci` で依存パッケージをインストール
-2. `npm run build` でアセットをビルド
+2. `npm run build` でアセットを `theme/dist/` にビルド
 3. `rsync` でテーマファイルをリモートサーバーへ転送
 
 ### GitHub Secrets の設定
@@ -155,14 +177,22 @@ wordpress-tpl/
 
 `.env.example` をコピーして `.env` を作成し、各値を設定する。
 
+### WordPress Theme
+
+| 変数名 | 説明 | デフォルト値 |
+|--------|------|-------------|
+| `THEME_NAME` | WordPress テーマのディレクトリ名 | `my-theme` |
+
 ### Database（Docker Compose）
 
 | 変数名 | 説明 | デフォルト値 |
 |--------|------|-------------|
+| `MARIADB_VERSION` | MariaDB のバージョン（リモートに合わせる） | `10.6` |
 | `DB_NAME` | WordPress データベース名 | `wordpress` |
 | `DB_USER` | データベースユーザー名 | `wordpress` |
 | `DB_PASSWORD` | データベースパスワード | `wordpress` |
 | `DB_ROOT_PASSWORD` | MariaDB root パスワード | `rootpassword` |
+| `WORDPRESS_TABLE_PREFIX` | テーブルプレフィックス | `eboe_` |
 
 ### Remote Server（Wordmove）
 

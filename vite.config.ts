@@ -2,7 +2,7 @@ import { defineConfig, Plugin } from "vite";
 import { resolve } from "path";
 import fs from "fs";
 
-const themeDistDir = resolve(__dirname, "wordpress/wp-content/themes/tcs/dist");
+const themeDistDir = resolve(__dirname, "theme/dist");
 const hotFilePath = resolve(themeDistDir, "hot");
 
 function hotFilePlugin(): Plugin {
