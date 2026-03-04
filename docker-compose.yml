@@ -5,6 +5,8 @@ services:
       - "8888:80"
     volumes:
       - ./theme:/var/www/html/wp-content/themes/${THEME_NAME}
+      - wp_plugins:/var/www/html/wp-content/plugins
+      - wp_uploads:/var/www/html/wp-content/uploads
       - ./docker/php.ini:/usr/local/etc/php/conf.d/uploads.ini
     environment:
       WORDPRESS_DB_HOST: db
@@ -29,14 +31,19 @@ services:
       MYSQL_PASSWORD: ${DB_PASSWORD}
 
   wordmove:
+    profiles:
+      - wordmove
     image: welaika/wordmove
     volumes:
       - ./Movefile.yml:/html/Movefile.yml
       - ./.env:/html/.env
       - ./theme:/html/wp-content/themes/${THEME_NAME}
       - ${SSH_KEY_PATH}:/root/.ssh/id_rsa:ro
+      - ./docker/ssh_config:/root/.ssh/config
     depends_on:
       - db
 
 volumes:
   db_data:
+  wp_plugins:
+  wp_uploads:
