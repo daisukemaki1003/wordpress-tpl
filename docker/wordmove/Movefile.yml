@@ -26,8 +26,8 @@ production:
   forbid:
     push:
       db: true
+      core: true
       uploads: true
-      themes: true
       plugins: true
       languages: true
       mu_plugins: true
