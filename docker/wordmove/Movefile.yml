@@ -23,6 +23,11 @@ production:
     host: "<%= ENV['REMOTE_SSH_HOST'] %>"
     user: "<%= ENV['REMOTE_SSH_USER'] %>"
     port: "<%= ENV['REMOTE_SSH_PORT'] %>"
+  hooks:
+    pull:
+      after:
+        - command: "chown -R www-data:www-data /html/wp-content"
+          where: local
   forbid:
     push:
       db: true
