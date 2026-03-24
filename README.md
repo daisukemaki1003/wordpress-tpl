@@ -1,5 +1,15 @@
 # wordpress-tpl
 
+## WP ログイン情報
+
+| 環境         | URL                                | ID       | Password | 備考 |
+| ------------ | ---------------------------------- | -------- | -------- | ---- |
+| 本番         | `https://example.com/wp-admin`     | `xxxxxx` | `xxxxxx` |      |
+| ステージング | `https://stg.example.com/wp-admin` | `xxxxxx` | `xxxxxx` |      |
+| 開発         | `http://localhost:8888/wp-admin`   | `xxxxxx` | `xxxxxx` |      |
+
+---
+
 Docker Compose によるローカル WordPress 環境、Vite による SCSS/TypeScript ビルド（HMR 対応）、Wordmove によるリモート同期、GitHub Actions による自動デプロイを統合した WordPress テーマ開発テンプレート。
 
 ## 技術スタック
@@ -139,18 +149,18 @@ wordpress-tpl/
 └── .gitignore
 ```
 
-| パス | 役割 |
-|------|------|
-| `src/scss/` | SCSS ソースファイル。Vite が CSS へコンパイル |
-| `src/ts/` | TypeScript ソースファイル。Vite が JS へコンパイル |
-| `theme/` | WordPress テーマ本体。Docker でテーマディレクトリへマウントされる |
-| `theme/dist/` | Vite ビルド出力先。git 管理外、CI で毎回ビルド |
-| `docker/php.ini` | PHP の upload_max_filesize 等のカスタム設定 |
-| `docker-compose.yml` | WordPress・MariaDB コンテナの定義 |
-| `vite.config.ts` | ビルドのエントリポイント・出力先を定義 |
-| `Movefile.yml` | Wordmove の接続先・同期設定 |
-| `package.json` | npm scripts でコマンドを集約 |
-| `.env` / `.env.example` | 環境固有の設定値（DB 認証、リモート接続情報） |
+| パス                    | 役割                                                              |
+| ----------------------- | ----------------------------------------------------------------- |
+| `src/scss/`             | SCSS ソースファイル。Vite が CSS へコンパイル                     |
+| `src/ts/`               | TypeScript ソースファイル。Vite が JS へコンパイル                |
+| `theme/`                | WordPress テーマ本体。Docker でテーマディレクトリへマウントされる |
+| `theme/dist/`           | Vite ビルド出力先。git 管理外、CI で毎回ビルド                    |
+| `docker/php.ini`        | PHP の upload_max_filesize 等のカスタム設定                       |
+| `docker-compose.yml`    | WordPress・MariaDB コンテナの定義                                 |
+| `vite.config.ts`        | ビルドのエントリポイント・出力先を定義                            |
+| `Movefile.yml`          | Wordmove の接続先・同期設定                                       |
+| `package.json`          | npm scripts でコマンドを集約                                      |
+| `.env` / `.env.example` | 環境固有の設定値（DB 認証、リモート接続情報）                     |
 
 ## デプロイ
 
@@ -166,11 +176,11 @@ wordpress-tpl/
 
 リポジトリの Settings > Secrets and variables > Actions に以下を登録する。
 
-| Secret 名 | 説明 |
-|-----------|------|
-| `SSH_PRIVATE_KEY` | デプロイ用 SSH 秘密鍵 |
-| `SSH_HOST` | リモートサーバーのホスト名 |
-| `SSH_USER` | SSH 接続ユーザー名 |
+| Secret 名           | 説明                                       |
+| ------------------- | ------------------------------------------ |
+| `SSH_PRIVATE_KEY`   | デプロイ用 SSH 秘密鍵                      |
+| `SSH_HOST`          | リモートサーバーのホスト名                 |
+| `SSH_USER`          | SSH 接続ユーザー名                         |
 | `REMOTE_THEME_PATH` | リモートサーバー上のテーマディレクトリパス |
 
 ## 環境変数
@@ -179,39 +189,39 @@ wordpress-tpl/
 
 ### WordPress Theme
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| `THEME_NAME` | WordPress テーマのディレクトリ名 | `my-theme` |
+| 変数名       | 説明                             | デフォルト値 |
+| ------------ | -------------------------------- | ------------ |
+| `THEME_NAME` | WordPress テーマのディレクトリ名 | `my-theme`   |
 
 ### Database（Docker Compose）
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| `MARIADB_VERSION` | MariaDB のバージョン（リモートに合わせる） | `10.6` |
-| `DB_NAME` | WordPress データベース名 | `wordpress` |
-| `DB_USER` | データベースユーザー名 | `wordpress` |
-| `DB_PASSWORD` | データベースパスワード | `wordpress` |
-| `DB_ROOT_PASSWORD` | MariaDB root パスワード | `rootpassword` |
-| `WORDPRESS_TABLE_PREFIX` | テーブルプレフィックス | `eboe_` |
+| 変数名                   | 説明                                       | デフォルト値   |
+| ------------------------ | ------------------------------------------ | -------------- |
+| `MARIADB_VERSION`        | MariaDB のバージョン（リモートに合わせる） | `10.6`         |
+| `DB_NAME`                | WordPress データベース名                   | `wordpress`    |
+| `DB_USER`                | データベースユーザー名                     | `wordpress`    |
+| `DB_PASSWORD`            | データベースパスワード                     | `wordpress`    |
+| `DB_ROOT_PASSWORD`       | MariaDB root パスワード                    | `rootpassword` |
+| `WORDPRESS_TABLE_PREFIX` | テーブルプレフィックス                     | `eboe_`        |
 
 ### Remote Server（Wordmove）
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| `REMOTE_URL` | リモートサイトの URL | `https://example.com` |
-| `REMOTE_WP_PATH` | リモートの WordPress インストールパス | `/var/www/html` |
-| `REMOTE_DB_NAME` | リモートデータベース名 | `wp_production` |
-| `REMOTE_DB_USER` | リモートデータベースユーザー名 | `wp_user` |
-| `REMOTE_DB_PASSWORD` | リモートデータベースパスワード | *(空)* |
-| `REMOTE_DB_HOST` | リモートデータベースホスト | `localhost` |
+| 変数名               | 説明                                  | デフォルト値          |
+| -------------------- | ------------------------------------- | --------------------- |
+| `REMOTE_URL`         | リモートサイトの URL                  | `https://example.com` |
+| `REMOTE_WP_PATH`     | リモートの WordPress インストールパス | `/var/www/html`       |
+| `REMOTE_DB_NAME`     | リモートデータベース名                | `wp_production`       |
+| `REMOTE_DB_USER`     | リモートデータベースユーザー名        | `wp_user`             |
+| `REMOTE_DB_PASSWORD` | リモートデータベースパスワード        | _(空)_                |
+| `REMOTE_DB_HOST`     | リモートデータベースホスト            | `localhost`           |
 
 ### Remote SSH（Wordmove）
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
+| 変数名            | 説明               | デフォルト値  |
+| ----------------- | ------------------ | ------------- |
 | `REMOTE_SSH_HOST` | SSH 接続先ホスト名 | `example.com` |
-| `REMOTE_SSH_USER` | SSH ユーザー名 | `deploy` |
-| `REMOTE_SSH_PORT` | SSH ポート番号 | `22` |
+| `REMOTE_SSH_USER` | SSH ユーザー名     | `deploy`      |
+| `REMOTE_SSH_PORT` | SSH ポート番号     | `22`          |
 
 ## トラブルシューティング
 
